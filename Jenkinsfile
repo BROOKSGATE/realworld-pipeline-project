@@ -58,26 +58,26 @@ pipeline {
                 sh """
                 mvn sonar:sonar \
                 -Dsonar.projectKey=Java-WebApp \
-                -Dsonar.host.url=http://10.162.0.16:9000 \
+                -Dsonar.host.url=http://34.152.45.18:9000 \
                 -Dsonar.login=$SONAR_TOKEN
                 """
                 }
             }
         }
     }
-    // stage('SonarQube GateKeeper') {
-    //     steps {
-    //       timeout(time : 1, unit : 'HOURS'){
-    //       waitForQualityGate abortPipeline: true
-    //       }
-    //    }
-    // }
+    stage('SonarQube GateKeeper') {
+        steps {
+          timeout(time : 1, unit : 'HOURS'){
+          waitForQualityGate abortPipeline: true
+          }
+       }
+    }
     stage("Nexus Artifact Uploader"){
         steps{
            nexusArtifactUploader(
               nexusVersion: 'nexus3',
               protocol: 'http',
-              nexusUrl: '10.128.0.10:8081',
+              nexusUrl: '10.188.0.9:8081',
               groupId: 'webapp',
               version: "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}",
               repository: 'maven-project-releases',  //"${NEXUS_REPOSITORY}",
@@ -91,41 +91,35 @@ pipeline {
            )
         }
     }
-    stage('Deploy to Development Env') {
-        environment {
-            HOSTS = 'dev'
-        }
-        steps {
-            withCredentials([usernamePassword(credentialsId: 'Ansible-Credential', passwordVariable: 'PASSWORD', usernameVariable: 'USER_NAME')]) {
-                sh "ansible-playbook -i ${WORKSPACE}/ansible-config/aws_ec2.yaml ${WORKSPACE}/deploy.yaml --extra-vars \"ansible_user=$USER_NAME ansible_password=$PASSWORD workspace_path=$WORKSPACE\""
-            }
-        }
-    }
-    stage('Deploy to Staging Env') {
-        environment {
-            HOSTS = 'stage'
-        }
-        steps {
-            withCredentials([usernamePassword(credentialsId: 'Ansible-Credential', passwordVariable: 'PASSWORD', usernameVariable: 'USER_NAME')]) {
-                sh "ansible-playbook -i ${WORKSPACE}/ansible-config/aws_ec2.yaml ${WORKSPACE}/deploy.yaml --extra-vars \"ansible_user=$USER_NAME ansible_password=$PASSWORD workspace_path=$WORKSPACE\""
-            }
-        }
-    }
-    stage('Quality Assurance Approval') {
-        steps {
-            input('Do you want to proceed?')
-        }
-    }
-    stage('Deploy to Production Env') {
-        environment {
-            HOSTS = 'prod'
-        }
-        steps {
-            withCredentials([usernamePassword(credentialsId: 'Ansible-Credential', passwordVariable: 'PASSWORD', usernameVariable: 'USER_NAME')]) {
-                sh "ansible-playbook -i ${WORKSPACE}/ansible-config/aws_ec2.yaml ${WORKSPACE}/deploy.yaml --extra-vars \"ansible_user=$USER_NAME ansible_password=$PASSWORD workspace_path=$WORKSPACE\""
-            }
-         }
+    stage('Deploy to DEV') {
+      environment {
+        HOSTS = "dev"
       }
+      steps {
+        sh "ansible-playbook ${WORKSPACE}/deploy.yaml --extra-vars \"hosts=$HOSTS workspace_path=$WORKSPACE\""
+      }
+     }
+    stage('Deploy to Stage') {
+      environment {
+        HOSTS = "stage" // Make sure to update to "stage"
+      }
+      steps {
+        sh "ansible-playbook ${WORKSPACE}/deploy.yaml --extra-vars \"hosts=$HOSTS workspace_path=$WORKSPACE\""
+      }
+    }
+    stage('Approval') {
+      steps {
+        input('Do you want to proceed?')
+      }
+    }
+    stage('Deploy to Prod') {
+      environment {
+        HOSTS = "prod"
+      }
+      steps {
+        sh "ansible-playbook ${WORKSPACE}/deploy.yaml --extra-vars \"hosts=$HOSTS workspace_path=$WORKSPACE\""
+      }
+    }
   }
   post {
     always {
@@ -136,4 +130,3 @@ pipeline {
     }
   }
 }
-
