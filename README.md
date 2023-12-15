@@ -418,6 +418,38 @@ Never forget that you have what it takes to add more than enough VALUE to any or
 ### Congratulations Team!!!👨🏼‍💻 Congratulations!!!👨🏼‍💻
 
 
-
+ 1  sudo apt update
+    2  sudo apt install maven -y
+    3  mvn --version
+    4  ansible --version
+    5  jenkins --version
+    6  sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+    7  ansible --version
+    8  sudo useradd ansible
+    9  sudo passwd ansibleadmin
+   10  sudo passwd ansible
+   11  sudo sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config
+   12  sudo sed -i "s/.*#PermitRootLogin yes/PermitRootLogin yes/g" /etc/ssh/sshd_config
+   13  sudo service sshd restart
+   14  sudo vi /etc/sudoers
+   15  ls /home
+   16  sudo useradd ansible
+   17  sudo userdel ansible -m
+   18  sudo useradd ansible -m
+   19  ls /home
+   20  sudo useradd ansible
+   21  ls /home
+   22  sudo cat clear
+   23  clear
+   24  ls /home
+   25  sudo useradd ansible
+   26  ls -al
+   27  sudo userdel ansible
+   28  sudo useradd ansible -m
+   29  ls /home
+   30  sudo cat /etc/sudoers
+   31  exit
+   32  sudo passwd ansible
+   33  exit
 
 
